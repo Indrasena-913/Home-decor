@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
-from sqlalchemy.orm import Session
-from auth import db_dependency, user_dependency
-from models import Cart, CartItem, Order, OrderItem, Product, User, OrderStatus
+from backend.auth import db_dependency, user_dependency
+from backend.models import Cart, CartItem, Order, OrderItem, Product, User, OrderStatus
 from datetime import datetime, UTC
 
 router = APIRouter()
@@ -36,7 +35,6 @@ async def create_order(db: db_dependency, user: user_dependency):
         )
         db.add(order_item)
 
-    # Clear cart
     for item in cart_items:
         db.delete(item)
 

@@ -5,8 +5,8 @@ from jose import jwt
 from sqlalchemy.orm import Session
 from starlette import status
 from pydantic import BaseModel, Field
-from database import SessionLocal
-from models import User
+from backend.database import SessionLocal
+from backend.models import User
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 import os

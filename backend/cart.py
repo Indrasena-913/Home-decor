@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Path
 from starlette import status
 
-from auth import db_dependency,user_dependency
-from models import Product, User,Cart,CartItem
+from backend.auth import db_dependency,user_dependency
+from backend.models import Product, User,Cart,CartItem
 
 router=APIRouter()
 
