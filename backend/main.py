@@ -9,7 +9,7 @@ from backend import products
 from backend import cart
 from backend import category
 from backend import orders
-from database import engine
+from backend.database import engine
 
 app=FastAPI()
 
