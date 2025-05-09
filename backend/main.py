@@ -3,12 +3,12 @@ from unicodedata import category
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-import models
-import auth
-import products
-import cart
-import category
-import orders
+from backend import models
+from backend import auth
+from backend import products
+from backend import cart
+from backend import category
+from backend import orders
 from database import engine
 
 app=FastAPI()
