@@ -92,7 +92,7 @@ async def clear_cart(user: user_dependency, db: db_dependency):
     return {"message": "Cart cleared successfully"}
 
 
-@router.get("/products/cart", status_code=status.HTTP_200_OK)
+@router.get("/cart", status_code=status.HTTP_200_OK)
 async def get_cart_items(user: user_dependency, db: db_dependency):
     user_id = user["sub"]
 
