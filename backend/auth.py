@@ -5,6 +5,8 @@ from jose import jwt
 from sqlalchemy.orm import Session
 from starlette import status
 from pydantic import BaseModel, Field
+from starlette.middleware.cors import CORSMiddleware
+
 from backend.database import SessionLocal
 from backend.models import User
 from passlib.context import CryptContext
@@ -13,6 +15,17 @@ import os
 load_dotenv()
 
 app = FastAPI()
+
+origins=["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 router = APIRouter()
 SECRET_KEY=os.getenv("SECRET_KEY")
 ALGORITHM=os.getenv("ALGORITHM")
@@ -22,6 +35,10 @@ class Check_User_Structure(BaseModel):
     name: str =Field(min_length=3)
     email: str =Field(min_length=10)
     password: str =Field(min_length=6)
+
+class LoginSchema(BaseModel):
+    email: str = Field(min_length=10)
+    password: str = Field(min_length=6)
 
 hash_Context=CryptContext(schemes=["bcrypt"],deprecated="auto")
 
@@ -81,18 +98,25 @@ async def create_user(user:Check_User_Structure,db:db_dependency):
     return {"message":"user created successfully", "user": {"id": new_user.id, "email": new_user.email}}
 
 
-@router.post("/auth/login",status_code=status.HTTP_200_OK)
-async def user_login(db:db_dependency,user_data:dict):
-    check_user_exist=db.query(User).filter(User.email==user_data["email"]).first()
+@router.post("/auth/login", status_code=status.HTTP_200_OK)
+async def user_login(user_data: LoginSchema, db: db_dependency):
+    check_user_exist = db.query(User).filter(User.email == user_data.email).first()
+
     if check_user_exist is None:
-        raise HTTPException(status_code=404,detail="user not found")
-    isMatching=verify_password(user_data["password"],check_user_exist.password)
+        raise HTTPException(status_code=404, detail="User not found")
 
-    if isMatching is None:
-        raise HTTPException(status_code=401,detail="Invalid credentials")
+    isMatching = verify_password(user_data.password, check_user_exist.password)
 
-    access_token=create_access_token(data={"sub":str(check_user_exist.id)},expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRY_TIME))
+    if not isMatching:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    return {"access_token":access_token,"token-type":"bearer","user_id":check_user_exist.id}
+    access_token = create_access_token(
+        data={"sub": str(check_user_exist.id)},
+        expires_delta=timedelta(minutes=int(ACCESS_TOKEN_EXPIRY_TIME))
+    )
 
-
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user_id": check_user_exist.id
+    }
