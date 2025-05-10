@@ -92,3 +92,33 @@ async def clear_cart(user: user_dependency, db: db_dependency):
     return {"message": "Cart cleared successfully"}
 
 
+@router.get("/products/cart", status_code=status.HTTP_200_OK)
+async def get_cart_items(user: user_dependency, db: db_dependency):
+    user_id = user["sub"]
+
+
+    existing_user = db.query(User).filter(User.id == user_id).first()
+    if not existing_user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+
+    cart = db.query(Cart).filter(Cart.user_id == user_id).first()
+    if not cart:
+        return {"message": "Cart is empty", "items": []}
+
+
+    cart_items = db.query(CartItem).filter(CartItem.cart_id == cart.id).all()
+
+    items = []
+    for item in cart_items:
+        product = db.query(Product).filter(Product.id == item.product_id).first()
+        if product:
+            items.append({
+                "cart_item_id": item.id,
+                "product_id": product.id,
+                "product_name": product.name,
+                "product_price": product.price,
+                "quantity": item.quantity,
+            })
+
+    return {"message": "Cart fetched successfully", "items": items}
