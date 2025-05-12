@@ -102,12 +102,13 @@ async def user_login(user_data: LoginSchema, db: db_dependency):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     access_token = create_access_token(
-        data={"sub": str(check_user_exist.id)},
+        data={"sub": str(check_user_exist.id), "name": check_user_exist.name},
         expires_delta=timedelta(minutes=int(ACCESS_TOKEN_EXPIRY_TIME))
     )
 
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "user_id": check_user_exist.id
+        "user_id": check_user_exist.id,
+        "user_name":check_user_exist.name
     }

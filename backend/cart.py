@@ -117,6 +117,7 @@ async def get_cart_items(user: user_dependency, db: db_dependency):
                 "cart_item_id": item.id,
                 "product_id": product.id,
                 "product_name": product.name,
+                "product-image":product.image,
                 "product_price": product.price,
                 "quantity": item.quantity,
             })
